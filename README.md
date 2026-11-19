@@ -8,7 +8,7 @@ Hovering the XP bar adds a section to its tooltip with your rested XP, the cap, 
 
 ## How the cap is worked out
 
-The base cap is 150% of the current level's XP. Each rank of the **Well Rested** node in the Adventure talent tree (tree `1188`, node `110301`) raises it by 4%. The addon re-reads the rank whenever your talent config changes.
+The base cap is 150% of the current level's XP. Each rank of the **Well Rested** node in the Adventure talent tree (tree `1188`, node `110301`) raises it by 4%, and also makes rested XP build 4% faster, so the tooltip's time-to-cap accounts for both. The addon re-reads the rank on every XP, rested or talent event, so a rank that is not loaded yet at login is picked up shortly after.
 
 ## Install
 

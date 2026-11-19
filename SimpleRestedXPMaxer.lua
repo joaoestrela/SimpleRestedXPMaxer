@@ -9,6 +9,7 @@ local BONUS_PER_RANK = 0.04
 
 -- Rested XP accrues at 5% of the current level's XP every 8 hours while
 -- resting (inn or capital city), and at a quarter of that rate elsewhere.
+-- Each Well Rested rank raises both the cap and this rate by 4%.
 local REST_GAIN_PERCENT = 5
 local REST_GAIN_PERIOD = 8 * 60 * 60
 local NOT_RESTING_RATE_FACTOR = 0.25
@@ -20,6 +21,7 @@ local tooltipOwners = {}
 local warnedMissingUI = false
 local currentCap = BASE_CAP
 local currentRank = 0
+local currentBonus = 1
 
 --------------------------------------------------
 -- TALENT DETECTION
@@ -39,10 +41,8 @@ end
 
 local function UpdateCap()
     currentRank = GetWellRestedRank()
-
-    currentCap = BASE_CAP * (
-        1 + currentRank * BONUS_PER_RANK
-    )
+    currentBonus = 1 + currentRank * BONUS_PER_RANK
+    currentCap = BASE_CAP * currentBonus
 end
 
 --------------------------------------------------
@@ -61,6 +61,7 @@ local function GetRestedState()
     -- XP gained per second while resting.
     local restingRate =
         maxXP * (REST_GAIN_PERCENT / 100) / REST_GAIN_PERIOD
+        * currentBonus
 
     return {
         maxXP = maxXP,
@@ -403,18 +404,16 @@ events:RegisterEvent("UPDATE_EXHAUSTION")
 events:RegisterEvent("PLAYER_LEVEL_UP")
 events:RegisterEvent("TRAIT_CONFIG_UPDATED")
 events:RegisterEvent("PLAYER_UPDATE_RESTING")
+events:RegisterEvent("TRAIT_CONFIG_LIST_UPDATED")
 
 events:SetScript("OnEvent", function(self, event)
 
+    -- Re-read the Well Rested rank on every event: talent data can still be
+    -- loading at PLAYER_LOGIN, and the lookup is two cheap API calls.
+    UpdateCap()
+
     if event == "PLAYER_LOGIN" then
-        UpdateCap()
         C_Timer.After(2, HookExperienceBars)
-
-    elseif event == "TRAIT_CONFIG_UPDATED" then
-        UpdateCap()
-        RefreshExperienceBars()
-        RefreshOpenTooltip()
-
     else
         RefreshExperienceBars()
         RefreshOpenTooltip()
