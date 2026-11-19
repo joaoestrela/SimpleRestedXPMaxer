@@ -1,0 +1,6 @@
+## Interface: 16001
+## Title: SimpleRestedXPMaxer
+## Notes: Simple rested XP cap tracker
+## Version: 1.0
+
+SimpleRestedXPMaxer.lua
